@@ -1,0 +1,29 @@
+version: '2'
+
+services:
+
+  docker-registry:
+    image: registry:2
+    container_name: docker-registry
+    ports:
+      - 5000:5000
+    volumes:
+      - ./registry_data:/var/lib/registry
+      - ./certs:/certs
+    environment:
+      REGISTRY_HTTP_TLS_CERTIFICATE: /certs/docker-registry.crt
+      REGISTRY_HTTP_TLS_KEY: /certs/docker-registry.key
+
+  docker-registry-ui:
+    image: hyper/docker-registry-web
+    container_name: docker-registry-ui
+    volumes:
+      - /etc/docker/certs.d:/etc/docker/certs.d
+    ports:
+      - 8899:8080
+    links:
+      - docker-registry
+    environment:
+      REGISTRY_URL: "https://docker-registry:5000/v2"
+      REGISTRY_NAME: "docker-registry:5000"
+      REGISTRY_TRUST_ANY_SSL: "true"
